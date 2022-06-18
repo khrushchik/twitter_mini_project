@@ -70,5 +70,13 @@ namespace Thread_.NET.BLL.Services
 
             return createdPostDTO;
         }
+
+        public async Task<PostDTO> DeletePost(int postId)
+        {
+            var post = await _context.Posts.FindAsync(postId);
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<PostDTO>(post);
+        }
     }
 }

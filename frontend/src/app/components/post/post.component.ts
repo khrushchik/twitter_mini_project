@@ -11,6 +11,7 @@ import { User } from '../../models/user';
 import { Comment } from '../../models/comment/comment';
 import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 import { SnackBarService } from '../../services/snack-bar.service';
+import { PostService } from '../../services/post.service';
 
 @Component({
     selector: 'app-post',
@@ -31,7 +32,8 @@ export class PostComponent implements OnDestroy {
         private authDialogService: AuthDialogService,
         private likeService: LikeService,
         private commentService: CommentService,
-        private snackBarService: SnackBarService
+        private snackBarService: SnackBarService,
+        private postService: PostService
     ) {}
 
     public ngOnDestroy() {
@@ -71,6 +73,16 @@ export class PostComponent implements OnDestroy {
             .likePost(this.post, this.currentUser)
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe((post) => (this.post = post));
+    }
+
+    public dislikePost() {
+        return;
+    }
+    public deletePost() {
+        /*if (this.currentUser) {
+           this.postService.deletePost(this.post.id).pipe(takeUntil(this.unsubscribe$)).subscribe();
+        }*/
+        return this.postService.deletePost(this.post.id); // хз кароче :(((
     }
 
     public sendComment() {

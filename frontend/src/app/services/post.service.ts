@@ -21,4 +21,7 @@ export class PostService {
     public likePost(reaction: NewReaction) {
         return this.httpService.postFullRequest<Post>(`${this.routePrefix}/like`, reaction);
     }
+    public deletePost(postId: Post['id']) {
+        return this.httpService.deleteFullRequest<Post>(`${this.routePrefix}/posts/${postId}`);
+    }
 }

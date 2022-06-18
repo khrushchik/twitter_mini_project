@@ -13,6 +13,12 @@
       <mat-icon matBadge="{{post.reactions.length}}" matBadgeColor="accent" matBadgeSize="medium"
         [matBadgeHidden]="post.reactions.length === 0" aria-label="Like">favorite</mat-icon>
     </button>
+      <button mat-icon-button color="primary" (click)="dislikePost()">
+          <mat-icon  aria-label="Dislike">thumb_down_alt</mat-icon>
+      </button>
+      <button mat-icon-button color="primary" (click)="deletePost()">
+          <mat-icon  aria-label="Delete">delete_outline</mat-icon>
+      </button>
     <button mat-icon-button color="accent">
       <mat-icon aria-label="Share">share</mat-icon>
     </button>
