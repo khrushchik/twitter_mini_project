@@ -35,6 +35,7 @@
         <mat-icon color="accent">add_comment</mat-icon>
       </button>
       <mat-slide-toggle (change)="sliderChanged($event)">Only mine</mat-slide-toggle>
+        <mat-slide-toggle (change)="sliderLikedChanged($event)">Only liked by me</mat-slide-toggle>
     </div>
     <mat-toolbar *ngIf="posts.length === 0 && !loadingPosts">
       <p class="no-content">There is nothing</p>
