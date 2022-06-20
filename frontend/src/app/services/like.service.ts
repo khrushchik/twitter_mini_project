@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
 import { AuthenticationService } from './auth.service';
 import { Post } from '../models/post/post';
+import { Comment } from '../models/comment/comment';
 import { NewReaction } from '../models/reactions/newReaction';
 import { PostService } from './post.service';
 import { User } from '../models/user';
 import { map, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { CommentService } from './comment.service';
 
 @Injectable({ providedIn: 'root' })
 export class LikeService {
-    public constructor(private authService: AuthenticationService, private postService: PostService) {}
+    public constructor(private authService: AuthenticationService, private postService: PostService, private commentService: CommentService) {}
 
     public likePost(post: Post, currentUser: User) {
         const innerPost = post;
@@ -36,6 +38,32 @@ export class LikeService {
                     : innerPost.reactions.concat({ isLike: true, user: currentUser });
 
                 return of(innerPost);
+            })
+        );
+    }
+    public likeComment(comment: Comment, currentUser: User) {
+        const innerComment = comment;
+
+        const reaction: NewReaction = {
+            entityId: innerComment.id,
+            isLike: true,
+            userId: currentUser.id
+        };
+
+        let hasReaction = innerComment.reactions.some((x) => x.user.id === currentUser.id);
+        innerComment.reactions = hasReaction
+            ? innerComment.reactions.filter((x) => x.user.id !== currentUser.id)
+            : innerComment.reactions.concat({ isLike: true, user: currentUser });
+        hasReaction = innerComment.reactions.some((x) => x.user.id === currentUser.id);
+
+        return this.commentService.likeComment(reaction).pipe(
+            map(() => innerComment),
+            catchError(() => {
+                innerComment.reactions = hasReaction
+                    ? innerComment.reactions.filter((x) => x.user.id !== currentUser.id)
+                    : innerComment.reactions.concat({ isLike: true, user: currentUser });
+
+                return of(innerComment);
             })
         );
     }

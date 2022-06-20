@@ -79,10 +79,13 @@ export class PostComponent implements OnDestroy {
         return;
     }
     public deletePost() {
-        /*if (this.currentUser) {
-           this.postService.deletePost(this.post.id).pipe(takeUntil(this.unsubscribe$)).subscribe();
-        }*/
-        return this.postService.deletePost(this.post.id); // хз кароче :(((
+        if (this.currentUser.id === this.post.author.id) {
+            return this.postService
+                .deletePost(this.post)
+                .pipe(takeUntil(this.unsubscribe$))
+                .subscribe((post) => (this.post = post));
+        }
+        return alert("You can't delete other people's posts.");
     }
 
     public sendComment() {

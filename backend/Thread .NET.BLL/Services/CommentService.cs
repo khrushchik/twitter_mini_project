@@ -26,5 +26,13 @@ namespace Thread_.NET.BLL.Services
 
             return _mapper.Map<CommentDTO>(createdComment);
         }
+
+        public async Task<CommentDTO> DeleteComment(int commentId)
+        {
+            var comment = await _context.Comments.FindAsync(commentId);
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<CommentDTO>(comment);
+        }
     }
 }

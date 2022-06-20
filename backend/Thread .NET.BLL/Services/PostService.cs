@@ -74,6 +74,23 @@ namespace Thread_.NET.BLL.Services
         public async Task<PostDTO> DeletePost(int postId)
         {
             var post = await _context.Posts.FindAsync(postId);
+            IQueryable<Comment> comments = from o in _context.Comments where o.PostId == postId select o;
+            IQueryable<PostReaction> postReactions = from o in _context.PostReactions where o.PostId == postId select o;
+            foreach (Comment comment in comments)
+            {
+                var commentId = comment.Id;
+                IQueryable<CommentReaction> commentReactions = from o in _context.CommentReactions
+                                                               where o.CommentId == commentId select o;
+                foreach (CommentReaction commentReaction in commentReactions)
+                {
+                    _context.CommentReactions.Remove(commentReaction);
+                }
+                _context.Comments.Remove(comment);
+            }
+            foreach(PostReaction postReaction in postReactions)
+            {
+                _context.PostReactions.Remove(postReaction);
+            }
             _context.Posts.Remove(post);
             await _context.SaveChangesAsync();
             return _mapper.Map<PostDTO>(post);
