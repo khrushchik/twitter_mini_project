@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Thread_.NET.BLL.Exceptions;
 using Thread_.NET.BLL.Hubs;
 using Thread_.NET.BLL.Services.Abstract;
 using Thread_.NET.Common.DTO.Post;
@@ -94,6 +96,45 @@ namespace Thread_.NET.BLL.Services
             _context.Posts.Remove(post);
             await _context.SaveChangesAsync();
             return _mapper.Map<PostDTO>(post);
+        }
+
+        public async Task UpdatePost(PostDTO postDto)
+        {
+            var postEntity = await _context.Posts
+                .Include(post => post.Author)
+                    .ThenInclude(author => author.Avatar)
+                .Include(post => post.Preview)
+                .Include(post => post.Comments)
+                    .ThenInclude(comment => comment.Author)
+                .FirstOrDefaultAsync(p => p.Id == postDto.Id);
+            if (postEntity == null)
+            {
+                throw new NotFoundException(nameof(Post), postDto.Id);
+            }
+            postEntity.Body = postDto.Body;
+            if (!string.IsNullOrEmpty(postDto.PreviewImage))
+            {
+                if (postEntity.Preview == null)
+                {
+                    postEntity.Preview = new Image
+                    {
+                        URL = postDto.PreviewImage
+                    };
+                }
+                else
+                {
+                    postEntity.Preview.URL = postDto.PreviewImage;
+                }
+            }
+            else
+            {
+                if (postEntity.Preview != null)
+                {
+                    _context.Images.Remove(postEntity.Preview);
+                }
+            }
+            _context.Posts.Update(postEntity);
+            await _context.SaveChangesAsync();
         }
     }
 }

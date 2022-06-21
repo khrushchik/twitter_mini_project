@@ -47,11 +47,17 @@ namespace Thread_.NET.WebAPI.Controllers
             return Ok();
         }
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePost(int id/*, [FromBody] PostCreateDTO dto*/)
+        public async Task<IActionResult> DeletePost(int id)
         {
-            //dto.AuthorId = this.GetUserIdFromToken();
             await _postService.DeletePost(id);
             return NoContent();
-        }   
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<PostDTO>> EditPost([FromBody] PostDTO dto)
+        {
+            await _postService.UpdatePost(dto);
+            return NoContent();
+        }
     }
 }

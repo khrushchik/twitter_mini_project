@@ -12,6 +12,7 @@ import { Comment } from '../../models/comment/comment';
 import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { PostService } from '../../services/post.service';
+import { GyazoService } from '../../services/gyazo.service';
 
 @Component({
     selector: 'app-post',
@@ -24,6 +25,12 @@ export class PostComponent implements OnDestroy {
 
     public showComments = false;
     public newComment = {} as NewComment;
+    public imageFile: File;
+    public showPostContainer = false;
+    public loading = false;
+    public imageUrl: string;
+
+
 
     private unsubscribe$ = new Subject<void>();
 
@@ -33,7 +40,8 @@ export class PostComponent implements OnDestroy {
         private likeService: LikeService,
         private commentService: CommentService,
         private snackBarService: SnackBarService,
-        private postService: PostService
+        private postService: PostService,
+        private gyazoService: GyazoService
     ) {}
 
     public ngOnDestroy() {
@@ -87,6 +95,55 @@ export class PostComponent implements OnDestroy {
         }
         return alert("You can't delete other people's posts.");
     }
+
+    public updatePost() {
+        if (this.currentUser.id === this.post.author.id) {
+            const postSubscription = !this.imageFile
+                ? this.postService.updatePost(this.post)
+                : this.gyazoService.uploadImage(this.imageFile).pipe(
+                    switchMap((imageData) => {
+                        this.post.previewImage = imageData.url;
+                        return this.postService.updatePost(this.post);
+                    })
+                );
+            this.loading = true;
+
+            postSubscription.pipe(takeUntil(this.unsubscribe$)).subscribe(
+                (respPost) => {
+                    this.post.body = undefined;
+                    this.post.previewImage = undefined;
+                    this.loading = false;
+                },
+                (error) => this.snackBarService.showErrorMessage(error)
+            );
+        }
+    }
+    public toggleNewPostContainer() {
+        this.showPostContainer = !this.showPostContainer;
+    }
+    public removeImage() {
+        this.imageUrl = undefined;
+        this.imageFile = undefined;
+    }
+    public loadImage(target: any) {
+        this.imageFile = target.files[0];
+
+        if (!this.imageFile) {
+            target.value = '';
+            return;
+        }
+
+        if (this.imageFile.size / 1000000 > 5) {
+            target.value = '';
+            this.snackBarService.showErrorMessage(`Image can't be heavier than ~5MB`);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.addEventListener('load', () => (this.imageUrl = reader.result as string));
+        reader.readAsDataURL(this.imageFile);
+    }
+
 
     public sendComment() {
         this.newComment.authorId = this.currentUser.id;

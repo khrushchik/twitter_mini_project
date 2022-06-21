@@ -24,4 +24,8 @@ export class PostService {
     public deletePost(post: Post) {
         return this.httpService.deleteRequest<Post>(`${this.routePrefix}/${post.id}`);
     }
+
+    public updatePost(post: Post) {
+        return this.httpService.putFullRequest<Post>(`${this.routePrefix}`, post);
+    }
 }
