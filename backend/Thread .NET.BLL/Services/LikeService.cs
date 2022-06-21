@@ -32,5 +32,27 @@ namespace Thread_.NET.BLL.Services
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task LikeComment(NewReactionDTO reaction)
+        {
+            var likes = _context.CommentReactions.Where(x => x.UserId == reaction.UserId && x.CommentId == reaction.EntityId);
+
+            if (likes.Any())
+            {
+                _context.CommentReactions.RemoveRange(likes);
+                await _context.SaveChangesAsync();
+
+                return;
+            }
+
+            _context.CommentReactions.Add(new DAL.Entities.CommentReaction
+            {
+                CommentId = reaction.EntityId,
+                IsLike = reaction.IsLike,
+                UserId = reaction.UserId
+            });
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

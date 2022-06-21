@@ -44,6 +44,7 @@ namespace Thread_.NET.Extensions
 
             services.AddSingleton<IValidator<UserRegisterDTO>, UserRegisterDTOValidator>();
             services.AddSingleton<IValidator<UserLoginDTO>, UserLoginDTOValidator>();
+            services.AddSingleton<IValidator<UserDTO>, UserUpdateDTOValidator>();
         }
 
         public static void RegisterAutoMapper(this IServiceCollection services)

@@ -13,6 +13,15 @@
       <mat-icon matBadge="{{post.reactions.length}}" matBadgeColor="accent" matBadgeSize="medium"
         [matBadgeHidden]="post.reactions.length === 0" aria-label="Like">favorite</mat-icon>
     </button>
+      <button mat-icon-button color="primary" (click)="dislikePost()">
+          <mat-icon  aria-label="Dislike">thumb_down_alt</mat-icon>
+      </button>
+      <button mat-icon-button color="primary" (click)="deletePost()">
+          <mat-icon  aria-label="Delete">delete_outline</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Edit a post" *ngIf="(currentUser.id === post.author.id)" (click)="toggleNewPostContainer()">
+          <mat-icon color="accent">edit_post</mat-icon>
+      </button>
     <button mat-icon-button color="accent">
       <mat-icon aria-label="Share">share</mat-icon>
     </button>
@@ -36,4 +45,24 @@
     </div>
     <app-comment *ngFor="let _comment of post.comments" [comment]="_comment"></app-comment>
   </div>
+    <mat-card class="post-create-container" *ngIf="currentUser && showPostContainer">
+        <mat-card-content>
+            <mat-form-field>
+                <textarea [(ngModel)]="post.body" matInput placeholder="Write something..."></textarea>
+            </mat-form-field>
+            <div class="image-container">
+                <mat-icon aria-label="Send" (click)="removeImage()">close</mat-icon>
+                <img mat-card-image class="post-image" *ngIf="imageUrl" mat-card-image src="{{imageUrl}}" alt="Photo">
+            </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <input hidden #file accept="image/*" type="file" (change)="loadImage($event.target)">
+            <button mat-icon-button color="accent" (click)="file.click()">
+                <mat-icon aria-label="Choose an image">image</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" matTooltip="Post it" (click)="updatePost()">
+                <mat-icon aria-label="Send">send</mat-icon>
+            </button>
+        </mat-card-actions>
+    </mat-card>
 </mat-card>

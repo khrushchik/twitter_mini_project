@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Thread_.NET.BLL.Exceptions;
 using Thread_.NET.BLL.Hubs;
 using Thread_.NET.BLL.Services.Abstract;
 using Thread_.NET.Common.DTO.Post;
@@ -69,6 +71,70 @@ namespace Thread_.NET.BLL.Services
             await _postHub.Clients.All.SendAsync("NewPost", createdPostDTO);
 
             return createdPostDTO;
+        }
+
+        public async Task<PostDTO> DeletePost(int postId)
+        {
+            var post = await _context.Posts.FindAsync(postId);
+            IQueryable<Comment> comments = from o in _context.Comments where o.PostId == postId select o;
+            IQueryable<PostReaction> postReactions = from o in _context.PostReactions where o.PostId == postId select o;
+            foreach (Comment comment in comments)
+            {
+                var commentId = comment.Id;
+                IQueryable<CommentReaction> commentReactions = from o in _context.CommentReactions
+                                                               where o.CommentId == commentId select o;
+                foreach (CommentReaction commentReaction in commentReactions)
+                {
+                    _context.CommentReactions.Remove(commentReaction);
+                }
+                _context.Comments.Remove(comment);
+            }
+            foreach(PostReaction postReaction in postReactions)
+            {
+                _context.PostReactions.Remove(postReaction);
+            }
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<PostDTO>(post);
+        }
+
+        public async Task UpdatePost(PostDTO postDto)
+        {
+            var postEntity = await _context.Posts
+                .Include(post => post.Author)
+                    .ThenInclude(author => author.Avatar)
+                .Include(post => post.Preview)
+                .Include(post => post.Comments)
+                    .ThenInclude(comment => comment.Author)
+                .FirstOrDefaultAsync(p => p.Id == postDto.Id);
+            if (postEntity == null)
+            {
+                throw new NotFoundException(nameof(Post), postDto.Id);
+            }
+            postEntity.Body = postDto.Body;
+            if (!string.IsNullOrEmpty(postDto.PreviewImage))
+            {
+                if (postEntity.Preview == null)
+                {
+                    postEntity.Preview = new Image
+                    {
+                        URL = postDto.PreviewImage
+                    };
+                }
+                else
+                {
+                    postEntity.Preview.URL = postDto.PreviewImage;
+                }
+            }
+            else
+            {
+                if (postEntity.Preview != null)
+                {
+                    _context.Images.Remove(postEntity.Preview);
+                }
+            }
+            _context.Posts.Update(postEntity);
+            await _context.SaveChangesAsync();
         }
     }
 }
