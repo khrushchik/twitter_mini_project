@@ -19,7 +19,7 @@
       <button mat-icon-button color="primary" (click)="deletePost()">
           <mat-icon  aria-label="Delete">delete_outline</mat-icon>
       </button>
-      <button mat-icon-button matTooltip="Edit a post" [disabled]="!(currentUser.id === post.author.id)" (click)="toggleNewPostContainer()">
+      <button mat-icon-button matTooltip="Edit a post" *ngIf="(currentUser.id === post.author.id)" (click)="toggleNewPostContainer()">
           <mat-icon color="accent">edit_post</mat-icon>
       </button>
     <button mat-icon-button color="accent">
