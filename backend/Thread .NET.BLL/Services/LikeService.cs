@@ -29,8 +29,14 @@ namespace Thread_.NET.BLL.Services
                 IsLike = reaction.IsLike,
                 UserId = reaction.UserId
             });
-
+            
             await _context.SaveChangesAsync();
+
+            var posts = _context.Posts.Where(p => p.Id == reaction.EntityId).FirstOrDefault();
+            var users = _context.Users.Where(u => u.Id == posts.AuthorId).FirstOrDefault();
+            var whoLiked = _context.Users.Where(u => u.Id == reaction.UserId).FirstOrDefault();
+            EmailService emailService = new EmailService();
+            await emailService.SendEmailAsync(users.Email, "someone liked your post", $"{whoLiked.UserName} liked your post.");
         }
 
         public async Task LikeComment(NewReactionDTO reaction)
