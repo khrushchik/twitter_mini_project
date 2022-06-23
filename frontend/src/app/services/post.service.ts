@@ -28,4 +28,8 @@ export class PostService {
     public updatePost(post: Post) {
         return this.httpService.putFullRequest<Post>(`${this.routePrefix}`, post);
     }
+
+    public sharePost(post: Post, email) {
+        return this.httpService.postRequest<Post>(`${this.routePrefix}/${email}`, post);
+    }
 }

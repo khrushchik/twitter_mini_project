@@ -32,7 +32,28 @@ namespace Thread_.NET.BLL.Services
             using (var client = new SmtpClient())
             {
                 await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(_config["SmtpEmail"], _config["SmtpPassword"]); //потрібно скрити
+                await client.AuthenticateAsync(_config["SmtpEmail"], _config["SmtpPassword"]);
+                await client.SendAsync(emailMessage);
+
+                await client.DisconnectAsync(true);
+            }
+        }
+        public async Task SendPostByEmailAsync(string email, string subject, string message, string pic)
+        {
+            var emailMessage = new MimeMessage();
+
+            emailMessage.From.Add(new MailboxAddress("Administration of Thread.NET", _config["SmtpEmail"]));
+            emailMessage.To.Add(new MailboxAddress("", email));
+            emailMessage.Subject = subject;
+            emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+            {
+                Text = string.Format(@"<p>""{0}""</pic>", message)+ string.Format(@"<img src = ""{0}"" width=300 height=300>", pic)
+            };
+
+            using (var client = new SmtpClient())
+            {
+                await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                await client.AuthenticateAsync(_config["SmtpEmail"], _config["SmtpPassword"]);
                 await client.SendAsync(emailMessage);
 
                 await client.DisconnectAsync(true);

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +18,12 @@ namespace Thread_.NET.BLL.Services
     public sealed class PostService : BaseService
     {
         private readonly IHubContext<PostHub> _postHub;
+        private readonly IConfiguration _config;
 
-        public PostService(ThreadContext context, IMapper mapper, IHubContext<PostHub> postHub) : base(context, mapper)
+        public PostService(ThreadContext context, IMapper mapper, IHubContext<PostHub> postHub, IConfiguration config) : base(context, mapper)
         {
             _postHub = postHub;
+            _config = config;
         }
 
         public async Task<ICollection<PostDTO>> GetAllPosts()
@@ -135,6 +138,21 @@ namespace Thread_.NET.BLL.Services
             }
             _context.Posts.Update(postEntity);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task SharePost(PostDTO postDto, string email)
+        {
+            var postEntity = await _context.Posts
+                .Include(post => post.Author)
+                    .ThenInclude(author => author.Avatar)
+                .Include(post => post.Preview)
+                .Include(post => post.Comments)
+                    .ThenInclude(comment => comment.Author)
+                .FirstOrDefaultAsync(p => p.Id == postDto.Id);
+
+            EmailService emailService = new EmailService(_config);
+            var images = _context.Images.Where(i => i.Id == postEntity.PreviewId).FirstOrDefault();
+            await emailService.SendPostByEmailAsync(email, "someome shared post with you", postEntity.Body, images.URL);
         }
     }
 }
