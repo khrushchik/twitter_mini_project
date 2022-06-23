@@ -22,7 +22,7 @@
       <button mat-icon-button matTooltip="Edit a post" *ngIf="(currentUser.id === post.author.id)" (click)="toggleNewPostContainer()">
           <mat-icon color="accent">edit_post</mat-icon>
       </button>
-    <button mat-icon-button color="accent">
+    <button mat-icon-button color="accent" (click)="toggleSharePostContainer()">
       <mat-icon aria-label="Share">share</mat-icon>
     </button>
     <button mat-icon-button color="basic" (click)=" toggleComments()">
@@ -61,6 +61,18 @@
                 <mat-icon aria-label="Choose an image">image</mat-icon>
             </button>
             <button mat-icon-button color="primary" matTooltip="Post it" (click)="updatePost()">
+                <mat-icon aria-label="Send">send</mat-icon>
+            </button>
+        </mat-card-actions>
+    </mat-card>
+    <mat-card class="post-create-container" *ngIf="showSharePostContainer">
+        <mat-card-content>
+            <mat-form-field>
+                <textarea [(ngModel)]="email" matInput placeholder="Write e-mail"></textarea>
+            </mat-form-field>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <button mat-icon-button color="primary" matTooltip="Share it" (click)="sharePost()">
                 <mat-icon aria-label="Send">send</mat-icon>
             </button>
         </mat-card-actions>

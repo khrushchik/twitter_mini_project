@@ -9,6 +9,7 @@ import { LikeService } from '../../services/like.service';
 import { CommentService } from '../../services/comment.service';
 import { Post } from '../../models/post/post';
 import { DialogType } from '../../models/common/auth-dialog-type';
+import { SnackBarService } from '../../services/snack-bar.service';
 
 @Component({
     selector: 'app-comment',
@@ -25,10 +26,13 @@ export class CommentComponent implements OnDestroy {
         private authService: AuthenticationService,
         private authDialogService: AuthDialogService,
         private likeService: LikeService,
-        private commentService: CommentService
+        private commentService: CommentService,
+        private snackBarService: SnackBarService
     ) {}
 
     private unsubscribe$ = new Subject<void>();
+    public showCommentContainer = false;
+
 
     public ngOnDestroy() {
         this.unsubscribe$.next();
@@ -62,6 +66,29 @@ export class CommentComponent implements OnDestroy {
         }
         return alert("You can't delete other people's comments.");
     }
+
+    public updateComment() {
+        // також чомусь currentUser undefined, тому апдейтити комментарі неможна,
+        // або, прибравши if, апдейтити можна усім користувачам комменти
+        // також не проходить перевірка в html компоненті, щоб прибрати кнопку edit з несвоїх комментарів
+         if (this.currentUser.id === this.comment.author.id) {
+            this.commentService
+                .updateComment(this.comment)
+                .pipe(takeUntil(this.unsubscribe$))
+                .subscribe(
+                    (resp) => {
+                        if (resp) {
+                            this.comment.body = undefined;
+                        }
+                    },
+                    (error) => this.snackBarService.showErrorMessage(error)
+                );
+         }
+    }
+    public toggleNewCommentContainer() {
+        this.showCommentContainer = !this.showCommentContainer;
+    }
+
 
     private catchErrorWrapper(obs: Observable<User>) {
         return obs.pipe(

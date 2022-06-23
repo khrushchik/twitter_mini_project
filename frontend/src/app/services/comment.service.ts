@@ -3,6 +3,7 @@ import { HttpInternalService } from './http-internal.service';
 import { NewComment } from '../models/comment/new-comment';
 import { Comment } from '../models/comment/comment';
 import { NewReaction } from '../models/reactions/newReaction';
+import {Post} from '../models/post/post';
 
 @Injectable({ providedIn: 'root' })
 export class CommentService {
@@ -20,5 +21,8 @@ export class CommentService {
 
     public deleteComment(comment: Comment) {
         return this.httpService.deleteRequest<Comment>(`${this.routePrefix}/${comment.id}`);
+    }
+    public updateComment(comment: Comment) {
+        return this.httpService.putFullRequest<Comment>(`${this.routePrefix}`, comment);
     }
 }

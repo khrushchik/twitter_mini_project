@@ -15,8 +15,23 @@
       <button mat-icon-button color="primary" (click)="deleteComment()">
           <mat-icon  aria-label="Delete">delete_outline</mat-icon>
       </button>
+      <button mat-icon-button color="accent" (click)="toggleNewCommentContainer()">
+          <mat-icon  aria-label="Edit">edit_post</mat-icon>
+      </button>
+
     <button mat-icon-button color="accent">
       <mat-icon aria-label="Share">share</mat-icon>
     </button>
   </mat-card-actions>
+    <div *ngIf="showCommentContainer">
+        <mat-divider></mat-divider>
+        <div class="new-comment">
+            <mat-form-field>
+                <textarea [(ngModel)]="comment.body" matInput placeholder="Comment it..."></textarea>
+            </mat-form-field>
+            <button mat-icon-button color="primary" matTooltip="Send" (click)="updateComment()">
+                <mat-icon aria-label="Send">send</mat-icon>
+            </button>
+        </div>
+    </div>
 </mat-card>

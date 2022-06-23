@@ -44,5 +44,12 @@ namespace Thread_.NET.WebAPI.Controllers
             await _likeService.LikeComment(reaction);
             return Ok();
         }
+
+        [HttpPut]
+        public async Task<ActionResult<CommentDTO>> EditComment([FromBody] CommentDTO dto)
+        {
+            await _commentService.UpdateComment(dto);
+            return NoContent();
+        }
     }
 }

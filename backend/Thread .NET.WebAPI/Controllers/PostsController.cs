@@ -59,5 +59,12 @@ namespace Thread_.NET.WebAPI.Controllers
             await _postService.UpdatePost(dto);
             return NoContent();
         }
+
+        [HttpPost("{email}")]
+        public async Task<IActionResult> SharePost(string email, [FromBody] PostDTO dto)
+        {
+            await _postService.SharePost(dto, email);
+            return Ok();
+        }
     }
 }

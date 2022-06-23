@@ -27,8 +27,10 @@ export class PostComponent implements OnDestroy {
     public newComment = {} as NewComment;
     public imageFile: File;
     public showPostContainer = false;
+    public showSharePostContainer = false;
     public loading = false;
     public imageUrl: string;
+    public email: string;
 
 
 
@@ -86,6 +88,14 @@ export class PostComponent implements OnDestroy {
     public dislikePost() {
         return;
     }
+
+    public sharePost() {
+        this.postService.sharePost(this.post, this.email).pipe(takeUntil(this.unsubscribe$)).subscribe((post) => (this.post = post));
+    }
+    public toggleSharePostContainer() {
+        this.showSharePostContainer = !this.showSharePostContainer;
+    }
+
     public deletePost() {
         if (this.currentUser.id === this.post.author.id) {
             return this.postService
